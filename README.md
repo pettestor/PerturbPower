@@ -10,7 +10,7 @@ The `PerturbPower` package provides tools to simulate and calculate power in CRI
 You can install the `PerturbPower` package by following these steps:
 
 ```r
-install.packages("https://github.com/pettestor/PerturbPower/")
+devtools::install_github("https://github.com/pettestor/PerturbPower/")
 ```
 
 
@@ -45,12 +45,14 @@ cl <- setup_parallel()
 
 ### Step 4: Load Data
 
-Make sure your dataset files are available (replace with correct file paths if necessary):
+Here we will use some example data from SeuratData and generate a synthetic gRNA library with five guides per gene for 150 genes.
 
 ```r
-# Load example data
-load(file = "data/gRNA_counts.rda")
-load(file = "data/seurat_obj.metadata.rda")
+# install.packages("SeuratData")
+data("ifnb")
+gRNA_counts = generate_grna_data(n_grna = 5,n_genes = 150)
+seurat_obj.metadata = ifnb@meta.data
+
 ```
 
 ### Step 5: Run Power Simulations

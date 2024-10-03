@@ -1,3 +1,52 @@
+#' Generate gRNA Data with Normally Distributed Counts
+#'
+#' This function generates a data frame simulating gRNA count data for a given number of genes and gRNAs.
+#' It uses gene names from the `pbmc3k` dataset and assigns normally distributed counts to each gRNA.
+#'
+#' @param n_grna Integer. The number of gRNAs to generate for each gene.
+#' @param n_genes Integer. The number of unique genes to sample.
+#' @param gene_universe A character vector of gene names to sample from (default: row names of the ifnb dataset).
+#' @param mean_count Numeric. The mean of the normal distribution for generating count values.
+#' @param sd_count Numeric. The standard deviation of the normal distribution for generating count values.
+#'
+#' @return A data frame with columns:
+#' \item{count}{Normally distributed count values for each gRNA}
+#' \item{ID}{Unique gRNA identifier in the format gene_symbol_X}
+#' \item{target_gene_symbol}{The gene symbol associated with the gRNA}
+#'
+#' @examples
+#' # Generate gRNA data for 3 genes, each with 4 gRNAs, normally distributed counts
+#' generate_grna_data(n_grna = 4, n_genes = 3, mean_count = 100000, sd_count = 20000)
+#'
+#' @export
+generate_grna_data <- function(n_grna, n_genes, gene_universe = rownames(ifnb),
+                               mean_count = 100000, sd_count = 20000) {
+
+  # Sample the number of genes as required
+  sampled_genes <- sample(gene_universe, n_genes, replace = FALSE)
+
+  # Create the data frame
+  df <- data.frame()
+  counter <- 1
+
+  # Loop through each gene and generate gRNAs
+  for (gene in sampled_genes) {
+    for (i in 1:n_grna) {
+      # Create the ID in the format gene_symbol_X
+      id <- paste0(gene, "_", i)
+      # Generate a random count value from a normal distribution
+      count <- round(rnorm(1, mean = mean_count, sd = sd_count))
+      # Append to the data frame
+      df <- rbind(df, data.frame(count = count, ID = id, target_gene_symbol = gene))
+    }
+  }
+
+  # Return the generated data frame
+  return(df)
+}
+
+
+
 #' Modify Gene Effect in a Data Frame
 #'
 #' Modifies the effect of selected genes by adjusting cell type frequencies in a given data frame.
@@ -190,6 +239,8 @@ test_gene_influence <- function(cell_df) {
 #' @export
 power_simulation <- function(n_samples, n_cells, nGenes_vals, fraction_grnas_vals, fraction_cell_proportion_change_vals, n_sims = 10,
                              significance_level = 0.05, seurat_obj_metadata = seurat_obj.metadata,
+                             annotation = "seurat_annotation",
+                             celltype = "B",
                              gRNA_count_data) {
 
   # Load libraries
@@ -222,7 +273,8 @@ power_simulation <- function(n_samples, n_cells, nGenes_vals, fraction_grnas_val
 
           # Apply gene modification effect
           modified_df <- modify_gene_effect(cell_df, nGenes = nGenes, fraction_grnas = fraction_grnas,
-                                            y = fraction_cell_proportion_change, celltype = "Dopamine neurons", verbose = FALSE)
+                                            y = fraction_cell_proportion_change,
+                                            celltype = celltype, verbose = FALSE)
 
           modified_genes <- anti_join(cell_df, modified_df) %>% distinct(Gene) %>% pull()
 
@@ -291,7 +343,7 @@ power_simulation <- function(n_samples, n_cells, nGenes_vals, fraction_grnas_val
 #' cell_df <- generate_celltype_df_with_variability(n_cells = 5000, seurat_obj_metadata = seurat_obj.metadata, n_samples = 5)
 generate_celltype_df_with_variability <- function(n_cells, seurat_obj_metadata = seurat_obj.metadata,
                                                   n_samples, sample_col = "orig.ident",
-                                                  celltype_col = "NamedClusters",
+                                                  celltype_col = "seurat_annotations",
                                                   enforce_celltype = "Dopamine neurons",
                                                   min_cells = 50) {
   # Get the metadata from the Seurat object
