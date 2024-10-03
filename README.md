@@ -49,6 +49,8 @@ Here we will use some example data from SeuratData and generate a synthetic gRNA
 
 ```r
 # install.packages("SeuratData")
+# InstallData("ifnb")
+
 data("ifnb")
 gRNA_counts = generate_grna_data(n_grna = 5,n_genes = 150)
 seurat_obj.metadata = ifnb@meta.data
