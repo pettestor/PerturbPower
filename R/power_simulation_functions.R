@@ -19,7 +19,7 @@
 #' generate_grna_data(n_grna = 4, n_genes = 3, mean_count = 100000, sd_count = 20000)
 #'
 #' @export
-generate_grna_data <- function(n_grna, n_genes, gene_universe = rownames(ifnb),
+generate_grna_data <- function(n_grna, n_genes, gene_universe = rownames(ifnb@assays$RNA@counts),
                                mean_count = 100000, sd_count = 20000) {
 
   # Sample the number of genes as required
@@ -261,7 +261,12 @@ power_simulation <- function(n_samples, n_cells, nGenes_vals, fraction_grnas_val
       for (fraction_cell_proportion_change in fraction_cell_proportion_change_vals) {
 
         # Run simulations in parallel
-        simulation_counts <- foreach(sim = 1:n_sims, .combine = 'rbind', .packages = c('dplyr')) %dopar% {
+        simulation_counts <- foreach(sim = 1:n_sims, .combine = 'rbind', .packages = c('dplyr'),
+                                     .export = c('n_cells', 'nGenes_vals', 'fraction_grnas_vals',
+                                                 'fraction_cell_proportion_change_vals',
+                                                 'gRNA_counts', 'seurat_obj.metadata', 'n_sims',
+                                                 'generate_celltype_df_with_variability', 'assign_gRNA',
+                                                 'modify_gene_effect','test_gene_influence')) %dopar% {
 
           # Generate initial cell type data
           cell_df <- generate_celltype_df_with_variability(n_cells  = 5000,
