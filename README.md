@@ -48,7 +48,8 @@ cl <- setup_parallel()
 Here we will use some example data from SeuratData and generate a synthetic gRNA library with five guides per gene for 150 genes.
 
 ```r
-# install.packages("SeuratData")
+# devtools::install_github('satijalab/seurat-data')
+# library(SeuratData)
 # InstallData("ifnb")
 
 data("ifnb")
@@ -65,8 +66,7 @@ The following loop runs power simulations for each number of samples and collect
 final_results <- data.frame()
 
 for (n_samples in n_samples_vals) {
-  cat("Running power simulations for", n_samples, "samples...
-")
+  cat("Running power simulations for", n_samples, "samples...")
 
   start_time <- Sys.time()
 
@@ -84,8 +84,7 @@ for (n_samples in n_samples_vals) {
 
   # Calculate elapsed time
   elapsed_time <- difftime(end_time, start_time, units = "secs")
-  cat("Time taken for", n_samples, "samples:", round(elapsed_time, 2), "seconds.
-")
+  cat("Time taken for", n_samples, "samples:", round(elapsed_time, 2), "seconds.")
 
   # Append the results
   results$n_samples <- n_samples
