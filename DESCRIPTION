@@ -1,7 +1,7 @@
 Package: PerturbPower
 Type: Package
 Title: power simulations and analyze the effect of gene modifications on cell type compositions using parallel processing
-Version: 0.1.0
+Version: 0.1.1
 Author: Petter Storm
 Maintainer: Petter Storm <petter.storm@med.lu.se>
 Description: This repository contains R scripts to run power simulations for Perturb-seq.
