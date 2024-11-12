@@ -82,7 +82,7 @@ for (n_samples in n_samples_vals) {
 
   # Calculate elapsed time
   elapsed_time <- difftime(end_time, start_time, units = "secs")
-  cat("Time taken for", n_samples, "samples:", round(elapsed_time, 2), "seconds.")
+  cat("Time taken for", n_samples, "samples:", round(elapsed_time, 2), "seconds.\n")
 
   # Append the results
   results$n_samples <- n_samples
