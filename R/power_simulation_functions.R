@@ -557,18 +557,31 @@ get_custom_palette <- function() {
 #' @import cowplot
 #' @import scales
 #' @export
-plot_power_simulation <- function(results,palette = get_custom_palette()){
+plot_power_simulation <- function(results,palette = get_custom_palette(), reformat_fraction = T,
+                                  n_guides_gene = 5, sensitivity_cutoff = 0.8){
 
   if (!requireNamespace("ggplot2", quietly = TRUE) ||
       !requireNamespace("cowplot", quietly = TRUE) ||
-      !requireNamespace("scales", quietly = TRUE)) {
+      !requireNamespace("scales", quietly = TRUE)||
+      !requireNamespace("dplyr", quietly = TRUE)) {
     stop("Please install ggplot2, cowplot, and scales packages to use this function.")
+  }else{
+    library(ggplot2,quietly = T)
+    library(cowplot,quietly = T)
+    library(scales,quietly = T)
+    library(dplyr,quietly = T)
   }
 
-  ggplot2::ggplot(results, aes(x = fraction_cell_proportion_change, y = sensitivity)) +
+  if(reformat_fraction){
+    # reformat fraction_grnas
+    results <- results %>%
+      mutate(formatted_col = paste0(round(fraction_grnas * n_guides_gene), "/", n_guides_gene))
+  }
+
+  ggplot(results, aes(x = fraction_cell_proportion_change, y = sensitivity)) +
     geom_line(aes(group = n_samples, color = as.factor(n_samples))) +
     geom_point(aes(group = n_samples, ,size = sd_sensitivity,color = as.factor(n_samples))) +
-    facet_grid(nGenes ~ fraction_grnas) +
+   facet_grid(nGenes ~ formatted_col) +
     labs(
       title = "Sensitivity vs. Fraction Cell Proportion Change",
       x = "Fraction Cell Proportion Change",
@@ -582,5 +595,6 @@ plot_power_simulation <- function(results,palette = get_custom_palette()){
     theme(
       panel.grid.major = element_line(color = "grey80", size = 0.5, linetype = "dashed"),  # Major grid lines
       panel.grid.minor = element_line(color = "grey90", size = 0.25, linetype = "dotted")  # Minor grid lines
-    )
+    )+geom_hline(yintercept = sensitivity_cutoff, linetype = "dashed", color = "red")+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
 }
