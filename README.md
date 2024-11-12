@@ -3,7 +3,7 @@
 
 ## Overview
 
-The `PerturbPower` package provides tools to simulate and calculate power in CRISPR-based perturbation screens using single-cell data. This package allows users to simulate multiple samples, cells, and genes, and to analyze sensitivity and power across different experimental conditions.
+The `PerturbPower` is an R package that provides tools to simulate and calculate power in CRISPR-based perturbation screens using single-cell data. This package allows users to simulate multiple samples, in silico transfect them with an gRNA library, and to analyze sensitivity and power across different experimental conditions.
 
 ## Installation
 
@@ -22,18 +22,19 @@ Here is a complete example of how to use the package for power simulations.
 
 ```r
 library(PerturbPower)
+library(foreach)
 ```
 
 ### Step 2: Set Parameters for Simulation
 
 ```r
 # Parameters for the simulation
-n_samples_vals <- c(2:8)  # Number of samples to simulate
+n_samples_vals <- c(2:8)  # Number of samples (typically 10X runs) to simulate
 n_cells <- 5000           # Number of cells per sample
 nGenes_vals <- c(8)       # Number of genes to modify
 fraction_grnas_vals <- c(0.4, 0.6, 0.8, 1.0)  # Fraction of gRNAs to modify
 fraction_cell_proportion_change_vals <- seq(1, 2, by = 0.2)  # Effect size
-n_sims <- 5               # Number of simulations per condition
+n_sims <- 5               # Number of simulations per condition, very low value to speed up example run.
 ```
 
 ### Step 3: Setup Parallel Processing
@@ -45,16 +46,13 @@ cl <- setup_parallel()
 
 ### Step 4: Load Data
 
-Here we will use some example data from SeuratData and generate a synthetic gRNA library with five guides per gene for 150 genes.
+Here we will use some example data from SeuratData and generate a synthetic gRNA library with five guides per gene for 150 genes. This data is provided within this repository.
 
 ```r
-# devtools::install_github('satijalab/seurat-data')
-# library(SeuratData)
-# InstallData("ifnb")
 
-data("ifnb")
-gRNA_counts = generate_grna_data(n_grna = 5,n_genes = 150)
-seurat_obj.metadata = ifnb@meta.data
+gene_universe = read.csv("https://raw.githubusercontent.com/pettestor/PerturbPower/refs/heads/main/data/gene_symbols.csv")
+gRNA_counts = generate_grna_data(n_grna = 5,n_genes = 150,gene_universe = gene_universe$SYMBOL)
+seurat_obj.metadata = read.csv("https://raw.githubusercontent.com/pettestor/PerturbPower/refs/heads/main/data/seurat_obj.metadata.ifnb.csv")
 
 ```
 
